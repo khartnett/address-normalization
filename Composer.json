@@ -1,0 +1,7 @@
+{
+    "name": "khartnett/address-normalization",
+    "description": "Converts mailing addresses into a normalized format",
+    "require": {
+        "php": ">=5.3.0"
+    }
+}
