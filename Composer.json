@@ -1,6 +1,16 @@
 {
     "name": "khartnett/address-normalization",
     "description": "Converts mailing addresses into a normalized format",
+    "keywords": ["mailing", "address", "normalization"],
+    "version": "0.0.1",
+    "authors": [
+        {"name": "Kieran Hartnett", "email": "khartnet@gmail.com"}
+    ],
+    "autoload": {
+        "psr-4": {
+            "Khartnett\\": "src/"
+        }
+    },
     "require": {
         "php": ">=5.3.0"
     }
