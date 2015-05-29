@@ -488,20 +488,12 @@ Class Normalization
             . '([^\d,]+?)\W+'
             . '(' . $this->state_regexp . ')'
             . ')';
-//        $directionalValues = array_values($this->directional);
-//        usort($directionalValues, function($a, $b) {
-//            return strlen($b) - strlen($a);
-//        });
-        // sort is not exactly the same between php and ruby. Not sure if this matters
-        // php:  NW|SW|SE|NE|W|E|S|N
-        // ruby: NW|NE|SW|SE|S|E|W|N
-        // hard coding values for now
-        $directionalValues = array("NW", "NE", "SW", "SE", "S", "E", "W", "N");
+        $directionalValues = array_values($this->directional);
         $expandedDirectionalValues = array();
         foreach($directionalValues as $directionalValue) {
             $expandedDirectionalValues[] = preg_replace('/(\w)/', "$1\\\\.", $directionalValue);
             $expandedDirectionalValues[] = $directionalValue;
-        }
+        }        
         $this->direct_regexp = implode("|", array_keys($this->directional))
             . "|"
             . implode("|", $expandedDirectionalValues);
@@ -551,16 +543,22 @@ Class Normalization
             . '(?:' . $this->place_regexp . ')?';
     }
     
-    public function createKey($address) {
-        $parsedAddress = $this->parse($address);
+    public function parse($address, $toString = false) {
+        if ($toString) {
+            return $this->parseToString($address);
+        }
+        return $this->parseToArray($address);
+    }
+    
+    protected function parseToString($address) {
+        $parsedAddress = $this->parseToArray($address);
         if($parsedAddress) {
-            return $this->generateKeyInput($parsedAddress);
+            return $this->toString($parsedAddress);
         }
         return $address;
     }
     
-    public function parse($address)
-    {
+    protected function parseToArray($address) {
         $match = array();
         preg_match('/' . $this->address_regexp . '/i', $address, $match);
 
@@ -602,20 +600,38 @@ Class Normalization
         return $this->normalizeAddress($parsedAddress);
     }
     
-    private function generateKeyInput($add)
+    private function toString($add)
+    {
+        $line1 = $this->lineOne($add);
+        $line2 = $this->lineTwo($add);
+        if ($line1 && $line2) {
+            return $line1 . ", " . $line2;
+        }
+        return $line1 . $line2;
+    }
+    
+    private function lineOne($add)
     {
         $s = (string)$add['number'];
         $s .= $add['prefix'] ? " " . $add['prefix'] : "";
         $s .= $add['street'] ? " " . $add['street'] : "";
         $s .= $add['street_type'] ? " " . $add['street_type'] : "";
+        $s .= $add['suffix'] ? " " . $add['suffix'] : "";
         if ($add['unit_prefix'] && $add['unit']) {
             $s .= " " . $add['unit_prefix'];
             $s .= " " . $add['unit'];
         } else if (!$add['unit_prefix'] && $add['unit'] ) {
             $s .= " #" . $add['unit'];
         }
-        $s .= $add['suffix'] ? " " . $add['suffix'] : "";
-        $s .= $add['postal_code'];
+        return $s;
+    }
+    
+    private function lineTwo($add)
+    {
+        $s = (string)$add['city'];
+        $s .= $add['state'] ? ", " . $add['state'] : "";
+        $s .= $add['postal_code'] ? " " . $add['postal_code'] : "";
+        $s .= $add['postal_code_ext'] ? "-" . $add['postal_code_ext'] : "";
         return $s;
     }
     
