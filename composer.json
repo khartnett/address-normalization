@@ -2,7 +2,8 @@
     "name": "khartnett/address-normalization",
     "description": "Converts mailing addresses into a normalized format",
     "keywords": ["mailing", "address", "normalization"],
-    "version": "0.0.2",
+    "version": "0.0.3",
+    "license": "MIT",
     "authors": [
         {"name": "Kieran Hartnett", "email": "khartnet@gmail.com"}
     ],
